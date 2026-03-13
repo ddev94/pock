@@ -102,6 +102,19 @@ func migrateLegacyData(homeDir string) error {
 	return err
 }
 
+// GetScriptsDir returns (and creates if needed) the directory where pock stores managed script files.
+func GetScriptsDir() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	scriptsDir := filepath.Join(homeDir, ".local", "share", "pock", "scripts")
+	if err := os.MkdirAll(scriptsDir, 0755); err != nil {
+		return "", err
+	}
+	return scriptsDir, nil
+}
+
 // load reads the database from disk
 func (db *Database) load() error {
 	db.mu.Lock()
