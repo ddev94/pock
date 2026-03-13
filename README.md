@@ -1,152 +1,178 @@
-# pock - Go Implementation
+<p align="center">
+	<img src="assets/icon.svg" alt="Pock icon" width="140" height="140" />
+</p>
 
-A powerful command-line tool for saving, managing, and sharing your frequently used commands - now written in Go!
+<h1 align="center">pock</h1>
 
-## Features
+<p align="center">
+	A simple app for saving and reusing terminal commands.
+</p>
 
-- 💾 Save and manage frequently used commands
-- ⚡ Quick command execution with simple aliases
-- 📝 Command history tracking
-- 🌐 Marketplace for sharing and discovering commands
-- 📤 Export commands to shareable JSON files
-- 📥 Import commands from files or URLs
-- 🔍 Search and browse community commands
-- 📦 Simple and intuitive command structure
-- 🚀 Written in Go for performance and cross-platform compatibility
+<p align="center">
+	Keep your most-used commands in one place and run them anytime.
+</p>
+
+## Overview
+
+`pock` helps you save commands you use again and again, so you do not need to remember or retype them. You can give each command a short name, run it later, and keep your routine tasks organized.
+
+## Highlights
+
+- Save commands with easy-to-remember names
+- Run saved commands in seconds
+- Keep a history of what you ran
+- Export and import your command library
+- Save script files for later use
+- Keep everything on your own computer
 
 ## Installation
 
-### From Source
+### Install from the macOS package
+
+1. Download the latest `.pkg` installer.
+2. Open the installer file.
+3. Follow the installation steps on screen.
+4. Open Terminal and run:
 
 ```bash
-cd golang
-go build -o pock ./cmd/pock
-sudo mv pock /usr/local/bin/
+pock --help
 ```
 
-### Development
+If you see the help message, `pock` is installed correctly.
+
+## Quick Start
+
+You only need a few commands to get started.
+
+### Save something you use often
 
 ```bash
-cd golang
-go run ./cmd/pock <command>
+pock add hello "echo 'Hello, World!'"
 ```
 
-## Shell Completion (Tab)
+This saves the command under the name `hello`.
 
-### zsh (macOS)
-
-Enable completion so commands like `pock l<Tab>` suggest `list`:
+### Save a script file
 
 ```bash
-# One-time setup
-mkdir -p ~/.zsh/completion
-pock completion zsh > ~/.zsh/completion/_pock
-
-# Add to ~/.zshrc (if not already present)
-fpath=(~/.zsh/completion $fpath)
-autoload -Uz compinit && compinit
+pock add deploy ./deploy.sh -d "Deployment script"
 ```
 
-Reload shell:
+When you add a script file, `pock` keeps its own copy so you can still use it later.
+
+### See what you have saved
 
 ```bash
-source ~/.zshrc
+pock list
 ```
 
-If you run from source during development:
+### Run a saved command
 
 ```bash
-mkdir -p ~/.zsh/completion
-go run ./cmd/pock completion zsh > ~/.zsh/completion/_pock
-source ~/.zshrc
+pock run hello
 ```
 
-## Usage
+## Commands
 
-### Basic Command Structure
+### `add`
 
-```bash
-pock <command> [options]
-```
-
-### Available Commands
-
-#### Add Command
-
-Save a new command for later use:
+Save a command or script with a short name.
 
 ```bash
 pock add <name> "<command>" [-d "description"]
+pock add <name> ./script.sh [-d "description"]
 ```
 
-Example:
+### `list`
 
-```bash
-pock add hello "echo 'Hello, World!'" -d "A simple hello world command"
-pock add deploy "git push origin main && npm run deploy" -d "Deploy to production"
-```
-
-#### List Commands
-
-View all saved commands:
+Show all saved commands.
 
 ```bash
 pock list [--stats]
 ```
 
-Options:
+### `run`
 
-- `--stats, -s` - Show execution statistics for each command
-
-#### Run Command
-
-Execute a saved command:
+Run a saved command.
 
 ```bash
 pock run <name>
 ```
 
-#### Remove Command
+### `remove`
 
-Delete a saved command:
+Delete a saved command you no longer need.
 
 ```bash
 pock remove <name>
 ```
 
-#### History
+### `history`
 
-View command execution history:
+See what you ran before.
 
 ```bash
 pock history [--limit 20]
+pock history --clear
 ```
 
-#### Export
+### `export`
 
-Export commands to a JSON file:
+Save your commands to a file for backup or sharing.
 
 ```bash
 pock export <output-file> [--name <command-name>]
 ```
 
-#### Import
+### `import`
 
-Import commands from a JSON file or URL:
+Bring commands in from a file or link.
 
 ```bash
 pock import <file-or-url> [--force]
 ```
 
-#### Config
+### `config`
 
-Manage configuration settings:
+Change app settings.
 
 ```bash
 pock config set <key> <value>
 pock config get <key>
 pock config list
 ```
+
+## Example Workflows
+
+### Common shortcuts
+
+```bash
+pock add sync-main "git checkout main && git pull --rebase origin main"
+pock add publish "git push origin main"
+```
+
+### Project automation
+
+```bash
+pock add dev "npm run dev"
+pock add test-all "npm run lint && npm run test && npm run build"
+```
+
+### Reusable scripts
+
+```bash
+pock add release ./scripts/release.sh -d "Release workflow"
+```
+
+## Documentation
+
+More detailed guides are available here:
+
+- [QUICKSTART.md](QUICKSTART.md)
+- [DEVELOPMENT.md](DEVELOPMENT.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)
+- [COMPARISON.md](COMPARISON.md)
 
 ## License
 
