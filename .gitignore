@@ -1,6 +1,7 @@
 # Build outputs
 bin/
 dist/
+pkgroot/
 
 # Go build cache
 *.exe

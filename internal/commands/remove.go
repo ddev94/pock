@@ -11,9 +11,10 @@ import (
 // NewRemoveCommand creates the remove command
 func NewRemoveCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove <name>",
-		Short: "Remove a saved command",
-		Args:  cobra.ExactArgs(1),
+		Use:               "remove <name>",
+		Short:             "Remove a saved command",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeSavedCommandNames,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 

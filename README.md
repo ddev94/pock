@@ -31,6 +31,36 @@ cd golang
 go run ./cmd/pock <command>
 ```
 
+## Shell Completion (Tab)
+
+### zsh (macOS)
+
+Enable completion so commands like `pock l<Tab>` suggest `list`:
+
+```bash
+# One-time setup
+mkdir -p ~/.zsh/completion
+pock completion zsh > ~/.zsh/completion/_pock
+
+# Add to ~/.zshrc (if not already present)
+fpath=(~/.zsh/completion $fpath)
+autoload -Uz compinit && compinit
+```
+
+Reload shell:
+
+```bash
+source ~/.zshrc
+```
+
+If you run from source during development:
+
+```bash
+mkdir -p ~/.zsh/completion
+go run ./cmd/pock completion zsh > ~/.zsh/completion/_pock
+source ~/.zshrc
+```
+
 ## Usage
 
 ### Basic Command Structure

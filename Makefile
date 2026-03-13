@@ -1,4 +1,4 @@
-.PHONY: build run clean install test help
+.PHONY: build run clean install test help package
 
 # Build the application
 build:
@@ -70,6 +70,7 @@ help:
 	@echo "  make fmt        - Format code"
 	@echo "  make lint       - Lint code"
 	@echo "  make build-all  - Build for all platforms"
+	@echo "  make package    - Build macOS .pkg installer"
 	@echo "  make help       - Show this help message"
 	@echo ""
 	@echo "Examples:"
@@ -86,7 +87,20 @@ package:
 	@cp dist/pock pkgroot/usr/local/bin/pock
 	@chmod 755 pkgroot/usr/local/bin/pock
 
-	@pkgbuild \
+	@mkdir -p pkgroot/usr/local/share/zsh/site-functions
+	@mkdir -p pkgroot/usr/local/etc/bash_completion.d
+	@mkdir -p pkgroot/usr/local/share/fish/vendor_completions.d
+
+	@dist/pock completion zsh > pkgroot/usr/local/share/zsh/site-functions/_pock
+	@dist/pock completion bash > pkgroot/usr/local/etc/bash_completion.d/pock
+	@dist/pock completion fish > pkgroot/usr/local/share/fish/vendor_completions.d/pock.fish
+	@chmod 644 pkgroot/usr/local/share/zsh/site-functions/_pock
+	@chmod 644 pkgroot/usr/local/etc/bash_completion.d/pock
+	@chmod 644 pkgroot/usr/local/share/fish/vendor_completions.d/pock.fish
+	@find pkgroot -name '._*' -delete
+	@xattr -cr pkgroot
+
+	@COPYFILE_DISABLE=1 pkgbuild \
 	  --root pkgroot \
 	  --identifier com.azoom.pock \
 	  --version 1.0.0 \

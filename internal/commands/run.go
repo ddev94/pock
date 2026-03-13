@@ -11,9 +11,10 @@ import (
 // NewRunCommand creates the run command
 func NewRunCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "run <name>",
-		Short: "Run a saved command by name or execute a bash script file",
-		Args:  cobra.ExactArgs(1),
+		Use:               "run <name>",
+		Short:             "Run a saved command by name or execute a bash script file",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeSavedCommandNames,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
