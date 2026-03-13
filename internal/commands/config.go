@@ -2,8 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"pock/internal/helpers"
 	"pock/internal/storage"
 	"pock/internal/utils"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -26,8 +28,8 @@ func NewConfigCommand() *cobra.Command {
 			}
 
 			fmt.Printf("\n%s\n\n", utils.CyanBold("Configuration Settings:"))
-			fmt.Printf("%s %s\n", utils.Green("listLayout:"), settings.ListLayout)
-			fmt.Printf("%s %s\n", utils.Green("dateFormat:"), settings.DateFormat)
+			fmt.Printf("%s %s\n", utils.Green(helpers.SettingListLayout+":"), settings.ListLayout)
+			fmt.Printf("%s %s\n", utils.Green(helpers.SettingDateFormat+":"), settings.DateFormat)
 
 			return nil
 		},
@@ -47,13 +49,13 @@ func NewConfigCommand() *cobra.Command {
 
 			var value string
 			switch key {
-			case "listLayout":
+			case helpers.SettingListLayout:
 				value = settings.ListLayout
-			case "dateFormat":
+			case helpers.SettingDateFormat:
 				value = settings.DateFormat
 			default:
 				fmt.Printf("%s Unknown setting key: %s\n", utils.Red("✗"), key)
-				fmt.Printf("%s Valid keys: listLayout, dateFormat\n", utils.Blue("ℹ"))
+				fmt.Printf("%s Valid keys: %s\n", utils.Blue("ℹ"), strings.Join(helpers.ValidSettingKeys(), ", "))
 				return nil
 			}
 
@@ -71,13 +73,8 @@ func NewConfigCommand() *cobra.Command {
 			key := args[0]
 			value := args[1]
 
-			// Validate the setting
-			if key == "listLayout" && value != "table" && value != "simple" {
-				fmt.Printf("%s Invalid value for listLayout. Must be 'table' or 'simple'\n", utils.Red("✗"))
-				return nil
-			}
-			if key == "dateFormat" && value != "relative" && value != "locale" && value != "iso" {
-				fmt.Printf("%s Invalid value for dateFormat. Must be 'relative', 'locale', or 'iso'\n", utils.Red("✗"))
+			if err := helpers.ValidateSettingUpdate(key, value); err != nil {
+				fmt.Printf("%s %s\n", utils.Red("✗"), err.Error())
 				return nil
 			}
 

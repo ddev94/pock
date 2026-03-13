@@ -67,8 +67,8 @@ func NewImportCommand() *cobra.Command {
 			fmt.Printf("%s Found %d command(s) to import\n", utils.Cyan("→"), len(imported))
 
 			// Import commands
-			var imported_count int
-			var skipped_count int
+			var importedCount int
+			var skippedCount int
 
 			for _, cmd := range imported {
 				// Check if command already exists
@@ -79,7 +79,7 @@ func NewImportCommand() *cobra.Command {
 
 				if existing != nil && !force {
 					fmt.Printf("%s Skipping \"%s\" (already exists)\n", utils.Yellow("⊘"), cmd.Name)
-					skipped_count++
+					skippedCount++
 					continue
 				}
 
@@ -92,7 +92,7 @@ func NewImportCommand() *cobra.Command {
 				}
 
 				// Create the command
-				_, err = storage.CreateSavedCommandDB(storage.CreateSavedCommand{
+				_, err = storage.CreateSavedCommand(storage.NewSavedCommandInput{
 					Name:        cmd.Name,
 					Command:     cmd.Command,
 					Description: cmd.Description,
@@ -103,14 +103,14 @@ func NewImportCommand() *cobra.Command {
 				}
 
 				fmt.Printf("%s Imported \"%s\"\n", utils.Green("✓"), cmd.Name)
-				imported_count++
+				importedCount++
 			}
 
 			fmt.Printf("\n%s Successfully imported %d command(s)",
 				utils.Green("✓"),
-				imported_count)
-			if skipped_count > 0 {
-				fmt.Printf(" (skipped %d)", skipped_count)
+				importedCount)
+			if skippedCount > 0 {
+				fmt.Printf(" (skipped %d)", skippedCount)
 			}
 			fmt.Println()
 

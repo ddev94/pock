@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"pock/internal/helpers"
 	"pock/internal/storage"
 	"pock/internal/utils"
 
@@ -33,7 +34,7 @@ func NewExportCommand() *cobra.Command {
 					return fmt.Errorf("failed to find command: %w", err)
 				}
 				if savedCmd == nil {
-					fmt.Printf("%s Command \"%s\" not found!\n", utils.Red("✗"), commandName)
+					helpers.PrintCommandNotFound(commandName)
 					return nil
 				}
 				commands = []storage.SavedCommand{*savedCmd}

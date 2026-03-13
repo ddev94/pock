@@ -148,40 +148,6 @@ pock config get <key>
 pock config list
 ```
 
-## Project Structure
-
-```
-golang/
-├── cmd/
-│   └── pock/
-│       └── main.go          # Entry point
-├── internal/
-│   ├── commands/
-│   │   ├── add.go           # Add command
-│   │   ├── list.go          # List command
-│   │   ├── run.go           # Run command
-│   │   ├── remove.go        # Remove command
-│   │   ├── history.go       # History command
-│   │   ├── export.go        # Export command
-│   │   ├── import.go        # Import command
-│   │   ├── config.go        # Config command
-│   │   ├── install.go       # Install command
-│   │   ├── browse.go        # Browse command
-│   │   └── publish.go       # Publish command
-│   ├── storage/
-│   │   ├── types.go         # Data types
-│   │   ├── database.go      # Database operations
-│   │   ├── commands.go      # Command storage
-│   │   ├── history.go       # History storage
-│   │   └── settings.go      # Settings storage
-│   └── utils/
-│       ├── colors.go        # Color utilities
-│       ├── exec.go          # Command execution
-│       └── table.go         # Table rendering
-├── go.mod
-└── README.md
-```
-
 ## License
 
 ISC

@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateSavedCommandDB creates a new saved command
-func CreateSavedCommandDB(cmd CreateSavedCommand) (*SavedCommand, error) {
+// CreateSavedCommand creates a new saved command.
+func CreateSavedCommand(input NewSavedCommandInput) (*SavedCommand, error) {
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, err
@@ -18,9 +18,9 @@ func CreateSavedCommandDB(cmd CreateSavedCommand) (*SavedCommand, error) {
 	now := time.Now()
 	newCommand := SavedCommand{
 		ID:          uuid.New().String(),
-		Name:        cmd.Name,
-		Command:     cmd.Command,
-		Description: cmd.Description,
+		Name:        input.Name,
+		Command:     input.Command,
+		Description: input.Description,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}

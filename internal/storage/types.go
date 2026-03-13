@@ -23,11 +23,20 @@ type SavedCommand struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// CreateSavedCommand represents the data needed to create a new command
-type CreateSavedCommand struct {
+// NewSavedCommandInput represents the data needed to create a new command.
+type NewSavedCommandInput struct {
 	Name        string `json:"name"`
 	Command     string `json:"command"`
 	Description string `json:"description,omitempty"`
+}
+
+// CommandStats represents command execution statistics.
+type CommandStats struct {
+	TotalRuns        int    `json:"totalRuns"`
+	SuccessfulRuns   int    `json:"successfulRuns"`
+	FailedRuns       int    `json:"failedRuns"`
+	LastRun          string `json:"lastRun"`
+	AvgExecutionTime int64  `json:"avgExecutionTime"`
 }
 
 // Settings represents user settings

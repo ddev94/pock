@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"pock/internal/helpers"
 	"pock/internal/storage"
 	"pock/internal/utils"
 
@@ -27,8 +28,7 @@ func NewRunCommand() *cobra.Command {
 			}
 
 			if savedCommand == nil {
-				fmt.Printf("%s Command \"%s\" not found!\n", utils.Red("✗"), name)
-				fmt.Printf("%s\n", utils.Blue("Use \"pock list\" to see all saved commands."))
+				helpers.PrintCommandNotFound(name)
 				return nil
 			}
 

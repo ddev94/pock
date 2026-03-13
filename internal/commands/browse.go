@@ -1,8 +1,7 @@
 package commands
 
 import (
-	"fmt"
-	"pock/internal/utils"
+	"pock/internal/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -13,9 +12,7 @@ func NewBrowseCommand() *cobra.Command {
 		Use:   "browse",
 		Short: "Browse commands in the marketplace",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// This is a placeholder for marketplace integration
-			fmt.Printf("%s\n", utils.Yellow("Marketplace integration not yet implemented."))
-			fmt.Printf("%s Use 'pock import' to import commands from a URL or file.\n", utils.Blue("ℹ"))
+			helpers.PrintFeatureNotImplemented("Use 'pock import' to import commands from a URL or file.")
 			return nil
 		},
 	}

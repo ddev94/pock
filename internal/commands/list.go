@@ -45,12 +45,12 @@ func NewListCommand() *cobra.Command {
 					}
 					if showStats {
 						stats, err := storage.GetCommandStats(cmd.Name)
-						if err == nil && stats["totalRuns"].(int) > 0 {
+						if err == nil && stats.TotalRuns > 0 {
 							fmt.Printf("  %s Total: %d | Success: %d | Failed: %d\n",
 								utils.Gray("Stats:"),
-								stats["totalRuns"],
-								stats["successfulRuns"],
-								stats["failedRuns"])
+								stats.TotalRuns,
+								stats.SuccessfulRuns,
+								stats.FailedRuns)
 						}
 					}
 					fmt.Println()
@@ -76,9 +76,9 @@ func NewListCommand() *cobra.Command {
 						stats, err := storage.GetCommandStats(cmd.Name)
 						if err == nil {
 							row = append(row,
-								fmt.Sprintf("%d", stats["totalRuns"]),
-								fmt.Sprintf("%d", stats["successfulRuns"]),
-								fmt.Sprintf("%d", stats["failedRuns"]))
+								fmt.Sprintf("%d", stats.TotalRuns),
+								fmt.Sprintf("%d", stats.SuccessfulRuns),
+								fmt.Sprintf("%d", stats.FailedRuns))
 						} else {
 							row = append(row, "0", "0", "0")
 						}

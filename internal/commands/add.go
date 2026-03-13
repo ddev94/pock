@@ -16,7 +16,7 @@ func NewAddCommand() *cobra.Command {
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
-			command := args[1]
+			commandText := args[1]
 			description, _ := cmd.Flags().GetString("description")
 
 			// Check if command already exists
@@ -33,9 +33,9 @@ func NewAddCommand() *cobra.Command {
 			}
 
 			// Create the command
-			savedCommand, err := storage.CreateSavedCommandDB(storage.CreateSavedCommand{
+			savedCommand, err := storage.CreateSavedCommand(storage.NewSavedCommandInput{
 				Name:        name,
-				Command:     command,
+				Command:     commandText,
 				Description: description,
 			})
 

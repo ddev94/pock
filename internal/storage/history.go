@@ -45,7 +45,7 @@ func GetCommandHistory(limit int) ([]CommandHistory, error) {
 	db.Read(func(data *StorageData) {
 		// Get all histories
 		allHistories := data.CommandHistories
-		
+
 		// If limit is specified and less than total, get the last N entries
 		if limit > 0 && limit < len(allHistories) {
 			start := len(allHistories) - limit
@@ -60,43 +60,43 @@ func GetCommandHistory(limit int) ([]CommandHistory, error) {
 	return histories, nil
 }
 
-// GetCommandStats returns statistics for a command
-func GetCommandStats(commandName string) (map[string]interface{}, error) {
+// GetCommandStats returns statistics for a command.
+func GetCommandStats(commandName string) (*CommandStats, error) {
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	stats := map[string]interface{}{
-		"totalRuns":      0,
-		"successfulRuns": 0,
-		"failedRuns":     0,
-		"lastRun":        "",
-		"avgExecutionTime": int64(0),
+	stats := &CommandStats{
+		TotalRuns:        0,
+		SuccessfulRuns:   0,
+		FailedRuns:       0,
+		LastRun:          "",
+		AvgExecutionTime: 0,
 	}
 
 	db.Read(func(data *StorageData) {
 		var totalExecTime int64
 		var count int64
-		
+
 		for _, h := range data.CommandHistories {
 			if h.CommandName == commandName {
-				stats["totalRuns"] = stats["totalRuns"].(int) + 1
+				stats.TotalRuns++
 				if h.Status == "success" {
-					stats["successfulRuns"] = stats["successfulRuns"].(int) + 1
+					stats.SuccessfulRuns++
 				} else {
-					stats["failedRuns"] = stats["failedRuns"].(int) + 1
+					stats.FailedRuns++
 				}
-				stats["lastRun"] = h.Date.Format(time.RFC3339)
+				stats.LastRun = h.Date.Format(time.RFC3339)
 				if h.ExecutionTime > 0 {
 					totalExecTime += h.ExecutionTime
 					count++
 				}
 			}
 		}
-		
+
 		if count > 0 {
-			stats["avgExecutionTime"] = totalExecTime / count
+			stats.AvgExecutionTime = totalExecTime / count
 		}
 	})
 
