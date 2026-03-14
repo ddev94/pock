@@ -6,8 +6,78 @@ import (
 	"pock/internal/storage"
 	"pock/internal/utils"
 
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 )
+
+// lookupResult holds the result of a command database lookup.
+type lookupResult struct {
+	cmd *storage.SavedCommand
+	err error
+}
+
+// lookupMsg is the Bubble Tea message emitted when the lookup finishes.
+type lookupMsg lookupResult
+
+// lookupModel is a minimal Bubble Tea model that animates a spinner while
+// looking up a saved command by name in the background.
+type lookupModel struct {
+	spinner spinner.Model
+	name    string
+	result  *lookupResult
+}
+
+func (m lookupModel) Init() tea.Cmd {
+	return tea.Batch(
+		m.spinner.Tick,
+		func() tea.Msg {
+			cmd, err := storage.GetSavedCommandByName(m.name)
+			return lookupMsg{cmd: cmd, err: err}
+		},
+	)
+}
+
+func (m lookupModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case lookupMsg:
+		r := lookupResult(msg)
+		m.result = &r
+		return m, tea.Quit
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+	}
+	return m, nil
+}
+
+func (m lookupModel) View() string {
+	if m.result != nil {
+		return ""
+	}
+	return fmt.Sprintf("%s Looking for command %q...\n", m.spinner.View(), m.name)
+}
+
+// findCommand runs a Bubble Tea spinner program while looking up a saved command.
+func findCommand(name string) (*storage.SavedCommand, error) {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
+
+	p := tea.NewProgram(lookupModel{spinner: s, name: name})
+	finalModel, err := p.Run()
+	if err != nil {
+		// Fall back to a direct lookup when the TUI cannot run (e.g. non-TTY).
+		return storage.GetSavedCommandByName(name)
+	}
+
+	if lm, ok := finalModel.(lookupModel); ok && lm.result != nil {
+		return lm.result.cmd, lm.result.err
+	}
+	return storage.GetSavedCommandByName(name)
+}
 
 // NewRunCommand creates the run command
 func NewRunCommand() *cobra.Command {
@@ -19,10 +89,8 @@ func NewRunCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			fmt.Printf("%s Looking for command \"%s\"...\n", utils.Cyan("→"), name)
-
-			// Find the command
-			savedCommand, err := storage.GetSavedCommandByName(name)
+			// Find the command with an animated spinner.
+			savedCommand, err := findCommand(name)
 			if err != nil {
 				return fmt.Errorf("failed to find command: %w", err)
 			}

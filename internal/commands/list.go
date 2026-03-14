@@ -11,8 +11,9 @@ import (
 // NewListCommand creates the list command
 func NewListCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all saved commands",
+		Use:     "list",
+		Aliases: []string{"ls"},
+		Short:   "List all saved commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			showStats, _ := cmd.Flags().GetBool("stats")
 

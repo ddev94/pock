@@ -13,6 +13,7 @@ import (
 func NewRemoveCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "remove <name>",
+		Aliases:           []string{"rm"},
 		Short:             "Remove a saved command",
 		Args:              cobra.ExactArgs(1),
 		ValidArgsFunction: completeSavedCommandNames,

@@ -60,6 +60,37 @@ func GetCommandHistory(limit int) ([]CommandHistory, error) {
 	return histories, nil
 }
 
+// GetCommandHistoryByName returns history entries for a specific command
+func GetCommandHistoryByName(commandName string, limit int) ([]CommandHistory, error) {
+	db, err := GetDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	var histories []CommandHistory
+	db.Read(func(data *StorageData) {
+		// Filter histories by command name
+		var filtered []CommandHistory
+		for _, h := range data.CommandHistories {
+			if h.CommandName == commandName {
+				filtered = append(filtered, h)
+			}
+		}
+
+		// If limit is specified and less than total, get the last N entries
+		if limit > 0 && limit < len(filtered) {
+			start := len(filtered) - limit
+			histories = make([]CommandHistory, limit)
+			copy(histories, filtered[start:])
+		} else {
+			histories = make([]CommandHistory, len(filtered))
+			copy(histories, filtered)
+		}
+	})
+
+	return histories, nil
+}
+
 // GetCommandStats returns statistics for a command.
 func GetCommandStats(commandName string) (*CommandStats, error) {
 	db, err := GetDatabase()
@@ -112,5 +143,23 @@ func ClearCommandHistory() error {
 
 	return db.Update(func(data *StorageData) {
 		data.CommandHistories = []CommandHistory{}
+	})
+}
+
+// ClearCommandHistoryByName clears history for a specific command
+func ClearCommandHistoryByName(commandName string) error {
+	db, err := GetDatabase()
+	if err != nil {
+		return err
+	}
+
+	return db.Update(func(data *StorageData) {
+		var filtered []CommandHistory
+		for _, h := range data.CommandHistories {
+			if h.CommandName != commandName {
+				filtered = append(filtered, h)
+			}
+		}
+		data.CommandHistories = filtered
 	})
 }

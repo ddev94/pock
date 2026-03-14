@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -21,7 +22,7 @@ type ExecResult struct {
 // ExecuteCommand executes a shell command and returns the result
 func ExecuteCommand(command string) *ExecResult {
 	startTime := time.Now()
-	
+
 	// Get the user's shell
 	shell := os.Getenv("SHELL")
 	if shell == "" {
@@ -30,23 +31,23 @@ func ExecuteCommand(command string) *ExecResult {
 
 	// Create the command
 	cmd := exec.Command(shell, "-c", command)
-	
+
 	// Set up output buffers
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	
+
 	// Run the command
 	err := cmd.Run()
-	
+
 	executionTime := time.Since(startTime).Milliseconds()
-	
+
 	result := &ExecResult{
 		Output:        stdout.String(),
 		Error:         stderr.String(),
 		ExecutionTime: executionTime,
 	}
-	
+
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			result.ExitCode = exitErr.ExitCode()
@@ -58,14 +59,15 @@ func ExecuteCommand(command string) *ExecResult {
 		result.ExitCode = 0
 		result.Success = true
 	}
-	
+
 	return result
 }
 
 // ExecuteCommandInteractive executes a command with interactive I/O
+// It captures output while still displaying it to the user
 func ExecuteCommandInteractive(command string) *ExecResult {
 	startTime := time.Now()
-	
+
 	// Get the user's shell
 	shell := os.Getenv("SHELL")
 	if shell == "" {
@@ -74,21 +76,24 @@ func ExecuteCommandInteractive(command string) *ExecResult {
 
 	// Create the command
 	cmd := exec.Command(shell, "-c", command)
-	
-	// Connect to stdin, stdout, stderr
+
+	// Set up output buffers that also write to stdout/stderr
+	var stdout, stderr bytes.Buffer
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	
+	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+
 	// Run the command
 	err := cmd.Run()
-	
+
 	executionTime := time.Since(startTime).Milliseconds()
-	
+
 	result := &ExecResult{
+		Output:        stdout.String(),
+		Error:         stderr.String(),
 		ExecutionTime: executionTime,
 	}
-	
+
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			result.ExitCode = exitErr.ExitCode()
@@ -100,16 +105,16 @@ func ExecuteCommandInteractive(command string) *ExecResult {
 		result.ExitCode = 0
 		result.Success = true
 	}
-	
+
 	return result
 }
 
 // IsScriptFile checks if the command is a script file
 func IsScriptFile(command string) bool {
 	// Check if it looks like a file path
-	if strings.Contains(command, "/") || 
-	   strings.HasSuffix(command, ".sh") || 
-	   strings.HasSuffix(command, ".bash") {
+	if strings.Contains(command, "/") ||
+		strings.HasSuffix(command, ".sh") ||
+		strings.HasSuffix(command, ".bash") {
 		// Check if file exists
 		if _, err := os.Stat(command); err == nil {
 			return true

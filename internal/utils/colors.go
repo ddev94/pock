@@ -1,24 +1,24 @@
 package utils
 
-import "github.com/fatih/color"
+import "github.com/charmbracelet/lipgloss"
 
 var (
 	// Success colors
-	Green  = color.New(color.FgGreen).SprintFunc()
-	Cyan   = color.New(color.FgCyan).SprintFunc()
-	Blue   = color.New(color.FgBlue).SprintFunc()
-	
+	Green = lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Render
+	Cyan  = lipgloss.NewStyle().Foreground(lipgloss.Color("6")).Render
+	Blue  = lipgloss.NewStyle().Foreground(lipgloss.Color("4")).Render
+
 	// Warning/Error colors
-	Yellow = color.New(color.FgYellow).SprintFunc()
-	Red    = color.New(color.FgRed).SprintFunc()
-	
+	Yellow = lipgloss.NewStyle().Foreground(lipgloss.Color("3")).Render
+	Red    = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Render
+
 	// Emphasis
-	Bold   = color.New(color.Bold).SprintFunc()
-	Gray   = color.New(color.FgHiBlack).SprintFunc()
-	
+	Bold = lipgloss.NewStyle().Bold(true).Render
+	Gray = lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Render
+
 	// Combined styles
-	GreenBold  = color.New(color.FgGreen, color.Bold).SprintFunc()
-	CyanBold   = color.New(color.FgCyan, color.Bold).SprintFunc()
-	YellowBold = color.New(color.FgYellow, color.Bold).SprintFunc()
-	RedBold    = color.New(color.FgRed, color.Bold).SprintFunc()
+	GreenBold  = lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true).Render
+	CyanBold   = lipgloss.NewStyle().Foreground(lipgloss.Color("6")).Bold(true).Render
+	YellowBold = lipgloss.NewStyle().Foreground(lipgloss.Color("3")).Bold(true).Render
+	RedBold    = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true).Render
 )
