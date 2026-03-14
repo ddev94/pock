@@ -20,7 +20,7 @@
 
 - Save commands with easy-to-remember names
 - Run saved commands in seconds
-- Keep a history of what you ran
+- Keep a history of what you ran with full output logs
 - Export and import your command library
 - Save script files for later use
 - Keep everything on your own computer
@@ -74,7 +74,7 @@ pock run hello
 
 ## Commands
 
-### `add`
+### `add` (alias: `a`, `create`)
 
 Save a command or script with a short name.
 
@@ -83,23 +83,28 @@ pock add <name> "<command>" [-d "description"]
 pock add <name> ./script.sh [-d "description"]
 ```
 
-### `list`
+### `list` (alias: `ls`)
 
 Show all saved commands.
 
 ```bash
-pock list [--stats]
+pock list [--stats] [--all]
 ```
+
+Options:
+
+- `--stats, -s`: Show execution statistics
+- `--all, -a`: Show all commands including disabled ones
 
 ### `run`
 
-Run a saved command.
+Run a saved command. Output is captured and saved to history.
 
 ```bash
 pock run <name>
 ```
 
-### `remove`
+### `remove` (alias: `rm`)
 
 Delete a saved command you no longer need.
 
@@ -109,12 +114,19 @@ pock remove <name>
 
 ### `history`
 
-See what you ran before.
+See what you ran before, with optional output viewing.
 
 ```bash
-pock history [--limit 20]
+pock history [command-name] [--limit 20] [--output]
+pock history my-cmd --clear
 pock history --clear
 ```
+
+Options:
+
+- `--limit, -l`: Limit number of entries (default: 20)
+- `--output, -o`: Show command output in history
+- `--clear`: Clear history (all or for specific command)
 
 ### `export`
 
@@ -132,16 +144,6 @@ Bring commands in from a file or link.
 pock import <file-or-url> [--force]
 ```
 
-### `config`
-
-Change app settings.
-
-```bash
-pock config set <key> <value>
-pock config get <key>
-pock config list
-```
-
 ## Example Workflows
 
 ### Common shortcuts
@@ -149,6 +151,10 @@ pock config list
 ```bash
 pock add sync-main "git checkout main && git pull --rebase origin main"
 pock add publish "git push origin main"
+
+# Use short aliases
+pock ls
+pock run sync-main
 ```
 
 ### Project automation
@@ -164,15 +170,107 @@ pock add test-all "npm run lint && npm run test && npm run build"
 pock add release ./scripts/release.sh -d "Release workflow"
 ```
 
+### View execution history
+
+```bash
+# View all history
+pock history
+
+# View history for specific command
+pock history dev
+
+# View history with output logs
+pock history dev --output
+
+# Clear specific command history
+pock history dev --clear
+```
+
 ## Documentation
 
 More detailed guides are available here:
 
-- [QUICKSTART.md](QUICKSTART.md)
 - [DEVELOPMENT.md](DEVELOPMENT.md)
-- [ARCHITECTURE.md](ARCHITECTURE.md)
-- [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)
-- [COMPARISON.md](COMPARISON.md)
+
+## Contributing
+
+We welcome contributions! Here's how you can help:
+
+### Reporting Issues
+
+If you find a bug or have a feature request:
+
+1. Check if the issue already exists in the [GitHub Issues](https://github.com/ddev94/pock/issues)
+2. If not, create a new issue with:
+   - A clear description of the problem or feature
+   - Steps to reproduce (for bugs)
+   - Expected vs actual behavior
+   - Your environment (OS, Go version, etc.)
+
+### Submitting Changes
+
+1. **Fork the repository**
+
+   ```bash
+   git clone https://github.com/ddev94/pock.git
+   cd pock
+   ```
+
+2. **Create a feature branch**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes**
+   - Follow the existing code style
+   - Add tests if applicable
+   - Update documentation as needed
+
+4. **Test your changes**
+
+   ```bash
+   go test ./...
+   go build ./...
+   ```
+
+5. **Commit your changes**
+
+   ```bash
+   git commit -m "Add: description of your changes"
+   ```
+
+6. **Push to your fork**
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+7. **Create a Pull Request**
+   - Provide a clear description of the changes
+   - Reference any related issues
+   - Wait for review and address feedback
+
+### Development Setup
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed development setup instructions.
+
+### Feature Flags
+
+Want to enable/disable commands? Edit `internal/commands/features.go`:
+
+```go
+const (
+    EnableBrowseCommand  = false // Set to true to enable
+    EnableInstallCommand = false
+    EnablePublishCommand = false
+    // ...
+)
+```
+
+### Code of Conduct
+
+Be respectful and constructive in all interactions. We aim to maintain a welcoming community for everyone.
 
 ## License
 

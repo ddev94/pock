@@ -33,49 +33,11 @@ sudo pacman -S go
 
 Download and install from [golang.org](https://golang.org/dl/)
 
-## Project Structure
-
-```
-golang/
-├── cmd/
-│   └── pock/
-│       └── main.go              # Application entry point
-├── internal/
-│   ├── commands/                # Command implementations
-│   │   ├── add.go
-│   │   ├── browse.go
-│   │   ├── config.go
-│   │   ├── export.go
-│   │   ├── history.go
-│   │   ├── import.go
-│   │   ├── install.go
-│   │   ├── list.go
-│   │   ├── publish.go
-│   │   ├── remove.go
-│   │   └── run.go
-│   ├── storage/                 # Data storage layer
-│   │   ├── commands.go          # Command CRUD operations
-│   │   ├── database.go          # Database management
-│   │   ├── history.go           # History operations
-│   │   ├── settings.go          # Settings operations
-│   │   └── types.go             # Type definitions
-│   └── utils/                   # Utility functions
-│       ├── colors.go            # Color formatting
-│       ├── exec.go              # Command execution
-│       └── table.go             # Table rendering
-├── go.mod                       # Go module definition
-├── Makefile                     # Build automation
-├── build.sh                     # Build script
-├── run.sh                       # Development run script
-└── README.md                    # Main documentation
-```
-
 ## Getting Started
 
 ### 1. Download Dependencies
 
 ```bash
-cd golang
 go mod download
 ```
 
@@ -132,17 +94,13 @@ make build
 go build -o bin/pock ./cmd/pock
 ```
 
-### Build for All Platforms
+### Build macOS Package
 
 ```bash
-make build-all
+make package
 ```
 
-This creates binaries for:
-
-- Linux (amd64)
-- macOS (amd64 and arm64)
-- Windows (amd64)
+This creates a `.pkg` installer for macOS distribution.
 
 ## Installation
 
@@ -216,23 +174,34 @@ pock add hello "echo 'Hello, World!'"
 
 # Add with description
 pock add deploy "git push origin main" -d "Deploy to production"
+
+# Add a script file
+pock add release ./scripts/release.sh -d "Release workflow"
 ```
 
 ### Listing Commands
 
 ```bash
-# List all commands
+# List all enabled commands
 pock list
+
+# Use alias
+pock ls
 
 # List with execution statistics
 pock list --stats
+
+# List all commands including disabled ones
+pock list --all
 ```
 
 ### Running Commands
 
 ```bash
-# Run a saved command
+# Run a saved command (output is captured and saved)
 pock run hello
+
+# The command runs with animated spinner during lookup
 ```
 
 ### Managing History
@@ -244,8 +213,17 @@ pock history
 # View last 10 entries
 pock history --limit 10
 
-# Clear history
+# View history for specific command
+pock history deploy
+
+# View history with output logs
+pock history deploy --output
+
+# Clear all history
 pock history --clear
+
+# Clear history for specific command
+pock history deploy --clear
 ```
 
 ### Exporting and Importing
@@ -267,21 +245,13 @@ pock import https://example.com/commands.json
 pock import commands.json --force
 ```
 
-### Configuration
+### Command Aliases
+
+Short aliases for faster workflow:
 
 ```bash
-# List all settings
-pock config list
-
-# Get a setting value
-pock config get listLayout
-
-# Set a setting value
-pock config set listLayout simple
-pock config set dateFormat iso
-
-# Reset to defaults
-pock config reset
+pock ls              # Same as: pock list
+pock rm my-cmd       # Same as: pock remove my-cmd
 ```
 
 ## Data Storage
@@ -340,9 +310,10 @@ chmod +x build.sh run.sh
 The storage layer uses a simple JSON file database with thread-safe operations:
 
 - `database.go`: Database initialization and operations
-- `commands.go`: Command CRUD operations
-- `history.go`: History tracking
+- `commands.go`: Command CRUD operations with enable/disable support
+- `history.go`: History tracking with command output logs
 - `settings.go`: Configuration management
+- `types.go`: Type definitions for all data structures
 
 ### Command Layer
 
@@ -351,28 +322,112 @@ Each command is implemented as a Cobra command:
 - Self-contained functionality
 - Clear argument parsing
 - Error handling
-- User-friendly output
+- User-friendly output with colors
 
-### Utilities
+### Feature Flags
 
-- **colors.go**: Provides color formatting using fatih/color
-- **exec.go**: Command execution with both interactive and non-interactive modes
-- **table.go**: Table rendering using tablewriter
+Commands can be enabled/disabled via constants in `internal/commands/features.go`:
+
+```go
+const (
+    EnableBrowseCommand  = false // Marketplace integration
+    EnableInstallCommand = false // Not yet implemented
+    EnablePublishCommand = false // Not yet implemented
+    EnableExportCommand  = true  // Enabled
+    EnableImportCommand  = true  // Enabled
+    EnableHistoryCommand = true  // Enabled
+)
+```
+
+### UI Components
+
+- **colors.go**: Provides color formatting using Charm Bracelet's Lipgloss
+- **exec.go**: Command execution with both interactive and non-interactive modes, captures output
+- **table.go**: Responsive table rendering using Lipgloss, auto-adjusts to terminal width
+- **run.go**: Implements Bubble Tea spinner for command lookup animation
 
 ## Dependencies
 
-- **cobra**: CLI framework
-- **fatih/color**: Terminal colors
-- **tablewriter**: Table rendering
-- **uuid**: UUID generation
+### Core Dependencies
+
+- **cobra**: CLI framework for command structure
+- **lipgloss**: Terminal styling and colors
+- **bubbletea**: Terminal UI framework for interactive components
+- **bubbles**: Pre-built TUI components (spinner, table)
+- **uuid**: UUID generation for entities
+
+### Additional Dependencies
+
+- **charmbracelet/x/ansi**: ANSI escape code handling
+- **golang.org/x/term**: Terminal width detection for responsive tables
+
+All dependencies are from Charm Bracelet ecosystem for consistent, beautiful terminal UI.
+
+## Feature Development
+
+### Adding a New Command
+
+1. Create command file in `internal/commands/`:
+
+   ```go
+   // my_command.go
+   func NewMyCommand() *cobra.Command {
+       cmd := &cobra.Command{
+           Use:   "my-command",
+           Short: "Description",
+           RunE: func(cmd *cobra.Command, args []string) error {
+               // Implementation
+               return nil
+           },
+       }
+       return cmd
+   }
+   ```
+
+2. Add feature flag in `internal/commands/features.go`:
+
+   ```go
+   const EnableMyCommand = true
+   ```
+
+3. Register in `internal/commands/register.go`:
+   ```go
+   if EnableMyCommand {
+       rootCmd.AddCommand(NewMyCommand())
+   }
+   ```
+
+### Modifying Table Rendering
+
+Table widths are configured in `internal/utils/table.go`:
+
+```go
+idealWidths := map[string]int{
+    "Name":        20,
+    "Command":     50,
+    "Description": 30,
+}
+maxWidths := map[string]int{
+    "Name":        30,
+    "Command":     80,
+    "Description": 50,
+}
+```
+
+Tables automatically shrink proportionally when terminal width is too narrow.
 
 ## Future Improvements
 
-- [ ] Add unit tests
+- [x] Command aliases (ls, rm)
+- [x] Command execution output capture
+- [x] History viewing with output logs
+- [x] Responsive table rendering
+- [x] Bubble Tea spinner for command lookup
+- [x] Feature flags for commands
+- [x] Command-specific history viewing and clearing
+- [ ] Add comprehensive unit tests
 - [ ] Implement actual marketplace integration
 - [ ] Add command tagging and search
 - [ ] Support for command templates with variables
-- [ ] Shell completion scripts
-- [ ] Interactive command builder
-- [ ] Command aliases
-- [ ] Encrypted secret storage
+- [ ] Interactive command builder with Bubble Tea
+- [ ] Encrypted secret storage for sensitive commands
