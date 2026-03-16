@@ -100,7 +100,7 @@ if [ -f "$INSTALL_DIR/$BINARY_NAME" ]; then
     echo "⚠️  Pock is already installed: $CURRENT_VERSION"
     echo "   New version: $NEW_VERSION"
     echo ""
-    read -p "Do you want to replace it? [y/N] " -n 1 -r
+    read -p "Do you want to replace it? [y/N] " -n 1 -r < /dev/tty
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "❌ Installation cancelled"
