@@ -1,5 +1,8 @@
 .PHONY: build run clean install test help package
 
+# Extract version from pkg/pock/version.go
+VERSION := $(shell grep 'const Version' pkg/pock/version.go | sed 's/.*"\(.*\)".*/\1/')
+
 # Build the application
 build:
 	@echo "Building pock..."
@@ -78,10 +81,26 @@ help:
 	@echo "  make run ARGS='list --stats'"
 	@echo "  make run ARGS='run hello'"
 
-package:
+# Set to your Developer ID certificate name or leave empty for unsigned
+SIGN_IDENTITY ?=
+
+app:
 	@rm -rf pkgroot
 	@mkdir -p dist
-	@go build -o dist/pock .
+	
+	@echo "Building universal binary (arm64 + amd64)..."
+	@GOOS=darwin GOARCH=arm64 go build -o dist/pock-arm64 .
+	@GOOS=darwin GOARCH=amd64 go build -o dist/pock-amd64 .
+	@lipo -create -output dist/pock dist/pock-arm64 dist/pock-amd64
+	@rm dist/pock-arm64 dist/pock-amd64
+
+ifdef SIGN_IDENTITY
+	@echo "Signing binary with $(SIGN_IDENTITY)..."
+	@codesign --force --sign "$(SIGN_IDENTITY)" \
+	  --options runtime \
+	  --timestamp \
+	  dist/pock
+endif
 
 	@mkdir -p pkgroot/usr/local/bin
 	@cp dist/pock pkgroot/usr/local/bin/pock
@@ -100,9 +119,29 @@ package:
 	@find pkgroot -name '._*' -delete
 	@xattr -cr pkgroot
 
+ifdef SIGN_IDENTITY
+	@echo "Building signed package..."
 	@COPYFILE_DISABLE=1 pkgbuild \
 	  --root pkgroot \
 	  --identifier com.azoom.pock \
-	  --version 1.0.0 \
+	  --version $(VERSION) \
 	  --install-location / \
-	  dist/pock-1.0.0.pkg
+	  --sign "$(SIGN_IDENTITY)" \
+	  dist/pock-$(VERSION).pkg
+	@echo "Package signed with $(SIGN_IDENTITY)"
+else
+	@echo "Building unsigned package (for testing only)..."
+	@COPYFILE_DISABLE=1 pkgbuild \
+	  --root pkgroot \
+	  --identifier com.azoom.pock \
+	  --version $(VERSION) \
+	  --install-location / \
+	  dist/pock-$(VERSION).pkg
+	@echo ""
+	@echo "⚠️  WARNING: Package is UNSIGNED and may not install on other devices!"
+	@echo "To install on the target device, the user must:"
+	@echo "  1. Right-click the .pkg file and select 'Open'"
+	@echo "  2. Click 'Open' in the security dialog"
+	@echo ""
+	@echo "For distribution, sign with: make package SIGN_IDENTITY='Developer ID Installer: Your Name'"
+endif
