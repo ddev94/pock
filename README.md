@@ -31,18 +31,66 @@
 
 ## Installation
 
-### Install from the macOS package
+### macOS
 
-1. Download the latest `.pkg` installer (supports both Intel and Apple Silicon Macs).
-2. Right-click the `.pkg` file and select **Open** (required for unsigned packages).
-3. Click **Open** in the security dialog, then follow the installation steps.
-4. Open Terminal and run:
+**Download and install the `.pkg` file:**
+
+1. Download the latest `pock-x.x.x.pkg` from [Releases](https://github.com/ddev94/pock/releases)
+2. Right-click the `.pkg` file and select **Open** (required for unsigned packages)
+3. Click **Open** in the security dialog, then follow the installation steps
+4. Verify installation:
 
 ```bash
 pock --help
 ```
 
-If you see the help message, `pock` is installed correctly.
+**Universal binary** - works on both Intel and Apple Silicon Macs.
+
+### Linux
+
+**Option 1: Using tarball (recommended)**
+
+```bash
+# Download and extract
+tar -xzf pock-x.x.x-1.x86_64.tar.gz
+
+# Install
+sudo cp pock-x.x.x/usr/local/bin/pock /usr/local/bin/
+sudo chmod 755 /usr/local/bin/pock
+
+# Verify
+pock --help
+```
+
+**Option 2: Using .deb package (Debian/Ubuntu)**
+
+```bash
+# Download the .deb file from releases
+sudo dpkg -i pock_x.x.x_amd64.deb
+```
+
+Or double-click the `.deb` file in your file manager.
+
+**Option 3: Download single binary**
+
+Download `pock-linux-amd64` from releases, make it executable, and move to PATH:
+
+```bash
+chmod +x pock-linux-amd64
+sudo mv pock-linux-amd64 /usr/local/bin/pock
+```
+
+### Windows
+
+**Option 1: Using zip package (recommended)**
+
+1. Download `pock-x.x.x-windows-amd64.zip` from [Releases](https://github.com/ddev94/pock/releases)
+2. Extract the zip file
+3. Add the extracted directory to your PATH, or copy `pock.exe` to a directory already in PATH
+
+**Option 2: Download single binary**
+
+Download `pock-windows-amd64.exe`, rename to `pock.exe`, and add to your PATH.
 
 ### Build from source
 
