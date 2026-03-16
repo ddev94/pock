@@ -58,7 +58,6 @@ func initDatabase() (*Database, error) {
 		database.Data = StorageData{
 			CommandHistories: []CommandHistory{},
 			SavedCommands:    []SavedCommand{},
-			Settings:         DefaultSettings(),
 		}
 		// Save the initial data
 		if err := database.save(); err != nil {

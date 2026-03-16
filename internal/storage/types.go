@@ -39,20 +39,6 @@ type CommandStats struct {
 	AvgExecutionTime int64  `json:"avgExecutionTime"`
 }
 
-// Settings represents user settings
-type Settings struct {
-	ListLayout string `json:"listLayout"` // "table" or "simple"
-	DateFormat string `json:"dateFormat"` // "relative", "locale", or "iso"
-}
-
-// DefaultSettings returns the default settings
-func DefaultSettings() Settings {
-	return Settings{
-		ListLayout: "table",
-		DateFormat: "locale",
-	}
-}
-
 // MarketplaceCommand represents a command from the marketplace
 type MarketplaceCommand struct {
 	Name        string   `json:"name"`
@@ -79,5 +65,4 @@ type ExportedCommand struct {
 type StorageData struct {
 	CommandHistories []CommandHistory `json:"commandHistories"`
 	SavedCommands    []SavedCommand   `json:"savedCommands"`
-	Settings         Settings         `json:"settings"`
 }

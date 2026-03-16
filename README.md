@@ -29,9 +29,9 @@
 
 ### Install from the macOS package
 
-1. Download the latest `.pkg` installer.
-2. Open the installer file.
-3. Follow the installation steps on screen.
+1. Download the latest `.pkg` installer (supports both Intel and Apple Silicon Macs).
+2. Right-click the `.pkg` file and select **Open** (required for unsigned packages).
+3. Click **Open** in the security dialog, then follow the installation steps.
 4. Open Terminal and run:
 
 ```bash
@@ -39,6 +39,15 @@ pock --help
 ```
 
 If you see the help message, `pock` is installed correctly.
+
+### Build from source
+
+```bash
+git clone https://github.com/ddev94/pock.git
+cd pock
+make build
+sudo make install
+```
 
 ## Quick Start
 
@@ -58,7 +67,7 @@ This saves the command under the name `hello`.
 pock add deploy ./deploy.sh -d "Deployment script"
 ```
 
-When you add a script file, `pock` keeps its own copy so you can still use it later.
+When you add a script file, `pock` stores its content so you can run it anytime.
 
 ### See what you have saved
 
@@ -74,7 +83,7 @@ pock run hello
 
 ## Commands
 
-### `add` (alias: `a`, `create`)
+### `add`
 
 Save a command or script with a short name.
 
@@ -83,7 +92,7 @@ pock add <name> "<command>" [-d "description"]
 pock add <name> ./script.sh [-d "description"]
 ```
 
-### `list` (alias: `ls`)
+### `list`
 
 Show all saved commands.
 
@@ -104,9 +113,9 @@ Run a saved command. Output is captured and saved to history.
 pock run <name>
 ```
 
-### `remove` (alias: `rm`)
+### `remove`
 
-Delete a saved command you no longer need.
+Delete a saved command.
 
 ```bash
 pock remove <name>
@@ -114,7 +123,7 @@ pock remove <name>
 
 ### `history`
 
-See what you ran before, with optional output viewing.
+View execution history with optional output viewing.
 
 ```bash
 pock history [command-name] [--limit 20] [--output]
@@ -128,6 +137,30 @@ Options:
 - `--output, -o`: Show command output in history
 - `--clear`: Clear history (all or for specific command)
 
+### `browse`
+
+Discover and install commands from community-shared libraries.
+
+```bash
+pock browse
+```
+
+### `register`
+
+Register and publish your commands to share with others.
+
+```bash
+pock register
+```
+
+### `publish`
+
+Publish your local commands for community use.
+
+```bash
+pock publish [--name <command-name>]
+```
+
 ### `export`
 
 Save your commands to a file for backup or sharing.
@@ -138,10 +171,28 @@ pock export <output-file> [--name <command-name>]
 
 ### `import`
 
-Bring commands in from a file or link.
+Import commands from a file or URL.
 
 ```bash
 pock import <file-or-url> [--force]
+```
+
+### `features`
+
+Display upcoming features and development roadmap.
+
+```bash
+pock features
+```
+
+### `completion`
+
+Generate shell completion scripts for bash, zsh, or fish.
+
+```bash
+pock completion bash > /usr/local/etc/bash_completion.d/pock
+pock completion zsh > /usr/local/share/zsh/site-functions/_pock
+pock completion fish > ~/.config/fish/completions/pock.fish
 ```
 
 ## Example Workflows
@@ -150,10 +201,10 @@ pock import <file-or-url> [--force]
 
 ```bash
 pock add sync-main "git checkout main && git pull --rebase origin main"
-pock add publish "git push origin main"
+pock add deploy "git push origin main"
 
-# Use short aliases
-pock ls
+# Run your commands
+pock list
 pock run sync-main
 ```
 
@@ -185,12 +236,6 @@ pock history dev --output
 # Clear specific command history
 pock history dev --clear
 ```
-
-## Documentation
-
-More detailed guides are available here:
-
-- [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ## Contributing
 
@@ -230,8 +275,8 @@ If you find a bug or have a feature request:
 4. **Test your changes**
 
    ```bash
-   go test ./...
-   go build ./...
+   make test
+   make build
    ```
 
 5. **Commit your changes**
@@ -250,23 +295,6 @@ If you find a bug or have a feature request:
    - Provide a clear description of the changes
    - Reference any related issues
    - Wait for review and address feedback
-
-### Development Setup
-
-See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed development setup instructions.
-
-### Feature Flags
-
-Want to enable/disable commands? Edit `internal/commands/features.go`:
-
-```go
-const (
-    EnableBrowseCommand  = false // Set to true to enable
-    EnableInstallCommand = false
-    EnablePublishCommand = false
-    // ...
-)
-```
 
 ### Code of Conduct
 
