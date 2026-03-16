@@ -174,15 +174,25 @@ release:
 	@$(MAKE) -s build-all
 	
 	@echo ""
+	@echo "▶ Copying installation helpers..."
+	@cp install.sh dist/install-macos.sh
+	@cp INSTALL_DOWNLOADED.md dist/
+	@cp RELEASE_NOTES.md dist/
+	@chmod +x dist/install-macos.sh
+	
+	@echo ""
 	@echo "========================================="
 	@echo "✓ Release v$(VERSION) complete!"
 	@echo "========================================="
 	@echo ""
 	@echo "Release artifacts:"
 	@echo "  macOS:     dist/pock-$(VERSION).pkg"
+	@echo "  macOS:     dist/install-macos.sh (helper script)"
 	@echo "  Linux:     dist/pock-$(VERSION)-1.x86_64.tar.gz"
 	@echo "  Linux deb: dist/deb/pock_$(VERSION)/ (requires dpkg-deb to finalize)"
 	@echo "  Windows:   dist/pock-$(VERSION)-windows-amd64.zip"
+	@echo "  Docs:      dist/INSTALL_DOWNLOADED.md"
+	@echo "  Docs:      dist/RELEASE_NOTES.md"
 	@echo ""
 	@echo "Additional binaries in bin/:"
 	@ls -lh bin/ 2>/dev/null || true
@@ -192,10 +202,12 @@ release:
 	@echo "  2. git push origin v$(VERSION)"
 	@echo "  3. gh release create v$(VERSION) \\"
 	@echo "       dist/pock-$(VERSION).pkg \\"
+	@echo "       dist/install-macos.sh \\"
 	@echo "       dist/pock-$(VERSION)-1.x86_64.tar.gz \\"
 	@echo "       dist/pock-$(VERSION)-windows-amd64.zip \\"
+	@echo "       dist/INSTALL_DOWNLOADED.md \\"
 	@echo "       --title 'v$(VERSION)' \\"
-	@echo "       --notes 'Release v$(VERSION)'"
+	@echo "       --notes-file dist/RELEASE_NOTES.md"
 
 # Show help
 help:

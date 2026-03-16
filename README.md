@@ -31,6 +31,26 @@
 
 ## Installation
 
+### Quick Install (macOS/Linux)
+
+Install directly from GitHub releases:
+
+```bash
+curl -o- https://raw.githubusercontent.com/ddev94/pock/main/install.sh | bash
+```
+
+or with wget:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/ddev94/pock/main/install.sh | bash
+```
+
+To install a specific version, pass it as an argument:
+
+```bash
+curl -o- https://raw.githubusercontent.com/ddev94/pock/main/install.sh | bash -s 1.0.2
+```
+
 ### macOS
 
 **Download and install the `.pkg` file:**
