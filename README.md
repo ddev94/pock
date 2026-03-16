@@ -12,6 +12,10 @@
 	Keep your most-used commands in one place and run them anytime.
 </p>
 
+<p align="center">
+	<img src="assets/demo.png" alt="Pock demo" width="800" />
+</p>
+
 ## Overview
 
 `pock` helps you save commands you use again and again, so you do not need to remember or retype them. You can give each command a short name, run it later, and keep your routine tasks organized.
