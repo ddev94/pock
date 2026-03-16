@@ -9,7 +9,8 @@ type CommandHistory struct {
 	CommandText   string    `json:"commandText"`
 	Date          time.Time `json:"date"`
 	Status        string    `json:"status"` // "success" or "failure"
-	Log           string    `json:"log"`
+	Log           string    `json:"log,omitempty"`
+	ExitCode      int       `json:"exitCode,omitempty"`
 	ExecutionTime int64     `json:"executionTime,omitempty"` // in milliseconds
 }
 
@@ -19,6 +20,8 @@ type SavedCommand struct {
 	Name        string    `json:"name"`
 	Command     string    `json:"command"`
 	Description string    `json:"description,omitempty"`
+	Source      string    `json:"source,omitempty"` // "local", "import", "marketplace"
+	Trusted     bool      `json:"trusted,omitempty"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }

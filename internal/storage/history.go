@@ -7,7 +7,7 @@ import (
 )
 
 // CreateCommandHistory creates a new command history entry
-func CreateCommandHistory(commandName, commandText, status, log string, executionTime int64) (*CommandHistory, error) {
+func CreateCommandHistory(commandName, commandText, status, log string, exitCode int, executionTime int64) (*CommandHistory, error) {
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, err
@@ -20,6 +20,7 @@ func CreateCommandHistory(commandName, commandText, status, log string, executio
 		Date:          time.Now(),
 		Status:        status,
 		Log:           log,
+		ExitCode:      exitCode,
 		ExecutionTime: executionTime,
 	}
 

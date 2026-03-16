@@ -91,18 +91,21 @@ func NewImportCommand() *cobra.Command {
 					}
 				}
 
-				// Create the command
-				_, err = storage.CreateSavedCommand(storage.NewSavedCommandInput{
+				// Create the command from import source
+				_, err = storage.CreateSavedCommandWithSource(storage.NewSavedCommandInput{
 					Name:        cmd.Name,
 					Command:     cmd.Command,
 					Description: cmd.Description,
-				})
+				}, "import")
 
 				if err != nil {
 					return fmt.Errorf("failed to import command: %w", err)
 				}
 
-				fmt.Printf("%s Imported \"%s\"\n", utils.Green("✓"), cmd.Name)
+				fmt.Printf("%s Imported \"%s\" %s\n",
+					utils.Green("✓"),
+					cmd.Name,
+					utils.Gray("(untrusted - will show warning on first run)"))
 				importedCount++
 			}
 

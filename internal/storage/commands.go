@@ -21,6 +21,8 @@ func CreateSavedCommand(input NewSavedCommandInput) (*SavedCommand, error) {
 		Name:        input.Name,
 		Command:     input.Command,
 		Description: input.Description,
+		Source:      "local",
+		Trusted:     true, // Local commands are trusted by default
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -126,4 +128,59 @@ func UpdateSavedCommand(id string, updates map[string]interface{}) (*SavedComman
 	}
 
 	return updated, err
+}
+
+// CreateSavedCommandWithSource creates a new saved command with a specific source
+func CreateSavedCommandWithSource(input NewSavedCommandInput, source string) (*SavedCommand, error) {
+	db, err := GetDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	newCommand := SavedCommand{
+		ID:          uuid.New().String(),
+		Name:        input.Name,
+		Command:     input.Command,
+		Description: input.Description,
+		Source:      source,
+		Trusted:     source == "local", // Only local commands are trusted by default
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+
+	err = db.Update(func(data *StorageData) {
+		data.SavedCommands = append(data.SavedCommands, newCommand)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &newCommand, nil
+}
+
+// MarkCommandAsTrusted marks a command as trusted
+func MarkCommandAsTrusted(id string) error {
+	db, err := GetDatabase()
+	if err != nil {
+		return err
+	}
+
+	var found bool
+	err = db.Update(func(data *StorageData) {
+		for i := range data.SavedCommands {
+			if data.SavedCommands[i].ID == id {
+				data.SavedCommands[i].Trusted = true
+				found = true
+				return
+			}
+		}
+	})
+
+	if !found {
+		return fmt.Errorf("command not found")
+	}
+
+	return err
 }

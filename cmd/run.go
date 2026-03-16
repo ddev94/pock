@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"pock/internal/helpers"
 	"pock/internal/storage"
 	"pock/internal/utils"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -100,6 +102,36 @@ func NewRunCommand() *cobra.Command {
 				return nil
 			}
 
+			// Check if command is trusted (for imported/marketplace commands)
+			if !savedCommand.Trusted {
+				fmt.Printf("%s %s\n", utils.Yellow("⚠"), utils.Yellow("Warning: This command is from an external source"))
+				fmt.Printf("%s Source: %s\n", utils.Gray("ℹ"), utils.Cyan(savedCommand.Source))
+				fmt.Printf("%s Command: %s\n", utils.Gray("ℹ"), savedCommand.Command)
+				fmt.Printf("\n")
+
+				// Ask for trust confirmation unless --yes flag is provided
+				skipConfirm, _ := cmd.Flags().GetBool("yes")
+				if !skipConfirm {
+					fmt.Printf("%s Do you want to trust and run this command? [y/N]: ", utils.Yellow("?"))
+					var response string
+					fmt.Scanln(&response)
+					response = strings.ToLower(strings.TrimSpace(response))
+
+					if response != "y" && response != "yes" {
+						fmt.Printf("%s Command execution cancelled\n", utils.Red("✗"))
+						return nil
+					}
+
+					// Mark as trusted for future runs
+					if err := storage.MarkCommandAsTrusted(savedCommand.ID); err != nil {
+						fmt.Printf("%s Warning: failed to mark command as trusted: %v\n", utils.Yellow("⚠"), err)
+					} else {
+						fmt.Printf("%s Command marked as trusted\n", utils.Green("✓"))
+					}
+				}
+				fmt.Println()
+			}
+
 			fmt.Printf("%s Found command: %s\n", utils.Green("✓"), utils.Yellow(savedCommand.Command))
 			fmt.Printf("%s\n", utils.Gray("─────────────────────────────────────────────────"))
 
@@ -108,14 +140,27 @@ func NewRunCommand() *cobra.Command {
 
 			fmt.Printf("%s\n", utils.Gray("─────────────────────────────────────────────────"))
 
+			// Determine if we should log output (privacy control)
+			noLogOutput, _ := cmd.Flags().GetBool("no-log-output")
+			// Check environment variable if flag is not set
+			if !noLogOutput {
+				envValue := strings.ToLower(os.Getenv("POCK_HISTORY_LOG"))
+				if envValue == "0" || envValue == "false" || envValue == "no" {
+					noLogOutput = true
+				}
+			}
+
 			// Save to history
 			status := "success"
-			logOutput := result.Output
-			if !result.Success {
-				status = "failure"
-				if result.Error != "" {
+			logOutput := ""
+			if !noLogOutput {
+				logOutput = result.Output
+				if !result.Success && result.Error != "" {
 					logOutput = result.Error
 				}
+			}
+			if !result.Success {
+				status = "failure"
 			}
 
 			_, err = storage.CreateCommandHistory(
@@ -123,6 +168,7 @@ func NewRunCommand() *cobra.Command {
 				savedCommand.Command,
 				status,
 				logOutput,
+				result.ExitCode,
 				result.ExecutionTime,
 			)
 			if err != nil {
@@ -148,6 +194,9 @@ func NewRunCommand() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().Bool("no-log-output", false, "Don't save command output/error to history (privacy)")
+	cmd.Flags().BoolP("yes", "y", false, "Skip trust confirmation for untrusted commands")
 
 	return cmd
 }
