@@ -81,7 +81,7 @@ help:
 package:
 	@rm -rf pkgroot
 	@mkdir -p dist
-	@go build -o dist/pock ./cmd/pock
+	@go build -o dist/pock .
 
 	@mkdir -p pkgroot/usr/local/bin
 	@cp dist/pock pkgroot/usr/local/bin/pock

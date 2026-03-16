@@ -58,7 +58,7 @@ make build
 #### Using go directly
 
 ```bash
-go build -o bin/pock ./cmd/pock
+go build -o bin/pock .
 ```
 
 ### 3. Run in Development Mode
@@ -80,8 +80,8 @@ make run ARGS='add test "echo test"'
 #### Using go directly
 
 ```bash
-go run ./cmd/pock list
-go run ./cmd/pock add test "echo test"
+go run . list
+go run . add test "echo test"
 ```
 
 ## Building
@@ -91,7 +91,7 @@ go run ./cmd/pock add test "echo test"
 ```bash
 make build
 # or
-go build -o bin/pock ./cmd/pock
+go build -o bin/pock .
 ```
 
 ### Build macOS Package
@@ -305,6 +305,33 @@ chmod +x build.sh run.sh
 
 ## Architecture
 
+### Project Structure
+
+Following Go best practices inspired by projects like goclaw:
+
+```
+pock/
+├── main.go                  # Main entry point
+├── cmd/                     # Command implementations (CLI commands)
+│   ├── add.go               # Add command
+│   ├── list.go              # List command
+│   ├── run.go               # Run command
+│   ├── history.go           # History command
+│   ├── export.go            # Export command
+│   ├── import.go            # Import command
+│   ├── remove.go            # Remove command
+│   ├── register.go          # Command registration
+│   └── root.go              # Root command setup
+├── internal/                # Internal packages (not importable externally)
+│   ├── helpers/             # Helper utilities
+│   ├── storage/             # Data persistence layer
+│   └── utils/               # Utility functions
+├── pkg/                     # Public packages (importable by other projects)
+│   └── pock/
+│       └── version.go       # Version information
+└── assets/                  # Static assets
+```
+
 ### Storage Layer
 
 The storage layer uses a simple JSON file database with thread-safe operations:
@@ -317,7 +344,7 @@ The storage layer uses a simple JSON file database with thread-safe operations:
 
 ### Command Layer
 
-Each command is implemented as a Cobra command:
+Each command is implemented as a separate file in the `cmd/` package:
 
 - Self-contained functionality
 - Clear argument parsing
@@ -326,7 +353,7 @@ Each command is implemented as a Cobra command:
 
 ### Feature Flags
 
-Commands can be enabled/disabled via constants in `internal/commands/features.go`:
+Commands can be enabled/disabled via constants in `cmd/features.go`:
 
 ```go
 const (

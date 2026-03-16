@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 // Feature flags for commands
 const (
